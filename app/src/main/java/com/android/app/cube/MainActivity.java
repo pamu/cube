@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             position = (mInitialSpeed * timeElapsed) + (0.5f * mCurrentAcceleration * (timeElapsed * timeElapsed)) % 360;
         if (! direction && finalVelocity < 0)
             position = (mInitialSpeed * timeElapsed) + (0.5f * mCurrentAcceleration * (timeElapsed * timeElapsed)) % 360;
-        Log.e(TAG, "finalVelocity: "  + finalVelocity + " mCurrentAcceleration: " + mCurrentAcceleration + " position: " + position);
+        //Log.e(TAG, "finalVelocity: "  + finalVelocity + " mCurrentAcceleration: " + mCurrentAcceleration + " position: " + position);
         return position;
     }
 
@@ -73,9 +73,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (direction)
-                    mCurrentAcceleration = - Integer.MAX_VALUE;
-                else mCurrentAcceleration = Integer.MAX_VALUE;
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    Log.e(TAG, "touch down");
+                    if (direction)
+                        mCurrentAcceleration = -Integer.MAX_VALUE;
+                    else mCurrentAcceleration = Integer.MAX_VALUE;
+                }
                 return super.onTouch(v, event);
             }
         });
@@ -121,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
 
         mHandler.removeCallbacks(mDrawCube);
-        mHandler.postDelayed(mDrawCube, 1000 / 25);
+        mHandler.postDelayed(mDrawCube, 1000 / 20);
 
     }
 
