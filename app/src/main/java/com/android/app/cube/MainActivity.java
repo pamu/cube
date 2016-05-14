@@ -8,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
 
@@ -17,6 +16,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private SurfaceHolder mSurfaceHolder;
     private Handler mHandler = new Handler();
 
+    private int size = 600;
     private final Paint mPaint = new Paint();
     private float mCenterX;
     private float mCenterY;
@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
 
         mHandler.removeCallbacks(mDrawCube);
-        mHandler.postDelayed(mDrawCube, 1000 / 50);
+        mHandler.postDelayed(mDrawCube, 1000 / 25);
 
     }
 
@@ -129,20 +129,20 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         c.save();
         c.translate(mCenterX, mCenterY);
         c.drawColor(0xff000000);
-        drawLine(c, -400, -400, -400, 400, -400, -400);
-        drawLine(c, 400, -400, -400, 400, 400, -400);
-        drawLine(c, 400, 400, -400, -400, 400, -400);
-        drawLine(c, -400, 400, -400, -400, -400, -400);
+        drawLine(c, -size, -size, -size, size, -size, -size);
+        drawLine(c, size, -size, -size, size, size, -size);
+        drawLine(c, size, size, -size, -size, size, -size);
+        drawLine(c, -size, size, -size, -size, -size, -size);
 
-        drawLine(c, -400, -400, 400, 400, -400, 400);
-        drawLine(c, 400, -400, 400, 400, 400, 400);
-        drawLine(c, 400, 400, 400, -400, 400, 400);
-        drawLine(c, -400, 400, 400, -400, -400, 400);
+        drawLine(c, -size, -size, size, size, -size, size);
+        drawLine(c, size, -size, size, size, size, size);
+        drawLine(c, size, size, size, -size, size, size);
+        drawLine(c, -size, size, size, -size, -size, size);
 
-        drawLine(c, -400, -400, 400, -400, -400, -400);
-        drawLine(c, 400, -400, 400, 400, -400, -400);
-        drawLine(c, 400, 400, 400, 400, 400, -400);
-        drawLine(c, -400, 400, 400, -400, 400, -400);
+        drawLine(c, -size, -size, size, -size, -size, -size);
+        drawLine(c, size, -size, size, size, -size, -size);
+        drawLine(c, size, size, size, size, size, -size);
+        drawLine(c, -size, size, size, -size, size, -size);
         c.restore();
     }
 
@@ -166,10 +166,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         newz2 = (float) (Math.cos(yrot) * newz2 - Math.sin(yrot) * x2);
 
         // 3D-to-2D projection
-        float startX = newx1 / (4 - newz1 / 400);
-        float startY = newy1 / (4 - newz1 / 400);
-        float stopX = newx2 / (4 - newz2 / 400);
-        float stopY = newy2 / (4 - newz2 / 400);
+        float startX = newx1 / (4 - newz1 / size);
+        float startY = newy1 / (4 - newz1 / size);
+        float stopX = newx2 / (4 - newz2 / size);
+        float stopY = newy2 / (4 - newz2 / size);
 
         c.drawLine(startX, startY, stopX, stopY, mPaint);
     }
