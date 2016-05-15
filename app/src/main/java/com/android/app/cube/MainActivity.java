@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
+import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
 
@@ -21,27 +22,55 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private float mCenterX;
     private float mCenterY;
 
+    // rotation across Y
     private float mCurrentYRot = 0;
-    private float mCurrentAcceleration = 0;
-    private float mInitialSpeed = 0;
-    private long mStartTime = SystemClock.elapsedRealtime();
-    private boolean direction = true;
+    private float mCurrentAccelerationY = 0;
+    private float mInitialSpeedY = 0;
+    private long mStartTimeY = SystemClock.elapsedRealtime();
+    private boolean directionY = true;
 
-    private float getPosition() {
-        long timeElapsed = (SystemClock.elapsedRealtime() - mStartTime);
-        float finalVelocity = mInitialSpeed + mCurrentAcceleration * timeElapsed;
+    // rotation across X
+    private float mCurrentXRot = 0;
+    private float mCurrentAccelerationX = 0;
+    private float mInitialSpeedX = 0;
+    private long mStartTimeX = SystemClock.elapsedRealtime();
+    private boolean directionX = true;
+
+    private void stop() {
+        mInitialSpeedX = 0;
+        mInitialSpeedY = 0;
+        mCurrentXRot = 0;
+        mCurrentYRot = 0;
+    }
+
+    private float getPositionY() {
+        long timeElapsed = (SystemClock.elapsedRealtime() - mStartTimeY);
+        float finalVelocity = mInitialSpeedY + mCurrentAccelerationY * timeElapsed;
         float position = mCurrentYRot;
-        if (direction && finalVelocity > 0)
-            position = (mInitialSpeed * timeElapsed) + (0.5f * mCurrentAcceleration * (timeElapsed * timeElapsed)) % 360;
-        if (! direction && finalVelocity < 0)
-            position = (mInitialSpeed * timeElapsed) + (0.5f * mCurrentAcceleration * (timeElapsed * timeElapsed)) % 360;
-        //Log.e(TAG, "finalVelocity: "  + finalVelocity + " mCurrentAcceleration: " + mCurrentAcceleration + " position: " + position);
+        if (directionY && finalVelocity > 0)
+            position = (mInitialSpeedY * timeElapsed) + (0.5f * mCurrentAccelerationY * (timeElapsed * timeElapsed)) % 360;
+        if (! directionY && finalVelocity < 0)
+            position = (mInitialSpeedY * timeElapsed) + (0.5f * mCurrentAccelerationY * (timeElapsed * timeElapsed)) % 360;
+        Log.e(TAG, "finalVelocityY: "  + finalVelocity + " mCurrentAccelerationY: " + mCurrentAccelerationY + " positionY: " + position);
+        return position;
+    }
+
+    private float getPositionX() {
+        long timeElapsed = (SystemClock.elapsedRealtime() - mStartTimeX);
+        float finalVelocity = mInitialSpeedX + mCurrentAccelerationX * timeElapsed;
+        float position = mCurrentXRot;
+        if (directionX && finalVelocity > 0)
+            position = (mInitialSpeedX * timeElapsed) + (0.5f * mCurrentAccelerationX * (timeElapsed * timeElapsed)) % 360;
+        if (! directionX && finalVelocity < 0)
+            position = (mInitialSpeedX * timeElapsed) + (0.5f * mCurrentAccelerationX * (timeElapsed * timeElapsed)) % 360;
+        Log.e(TAG, "finalVelocityX: "  + finalVelocity + " mCurrentAccelerationX: " + mCurrentAccelerationX + " positionX: " + position);
         return position;
     }
 
     private final Runnable mDrawCube = new Runnable() {
         public void run() {
-            mCurrentYRot = getPosition();
+            mCurrentYRot = getPositionY();
+            mCurrentXRot = getPositionX();
             tryDrawing(mSurfaceHolder);
         }
     };
@@ -50,36 +79,67 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Button btn = (Button) findViewById(R.id.btn);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stop();
+            }
+        });
         mSurfaceView = (SurfaceView) findViewById(R.id.surface_view);
         mSurfaceView.setOnTouchListener(new OnSwipeTouchListener(getApplicationContext()) {
             @Override
             public void onSwipeRight(float velocityX) {
                 super.onSwipeRight(velocityX);
-                direction = true;
+                directionY = true;
                 Log.e(TAG, "velocityX: " + velocityX );
-                mCurrentAcceleration = - 0.5f;
-                mInitialSpeed = velocityX / 20;
-                mStartTime = SystemClock.elapsedRealtime();
+                mCurrentAccelerationY = - 0.5f;
+                mInitialSpeedY = velocityX / 10;
+                mStartTimeY = SystemClock.elapsedRealtime();
             }
 
             @Override
             public void onSwipeLeft(float velocityX) {
                 super.onSwipeLeft(velocityX);
-                direction = false;
-                mCurrentAcceleration = 0.5f;
-                mInitialSpeed = velocityX / 20;
-                mStartTime = SystemClock.elapsedRealtime();
+                directionY = false;
+                mCurrentAccelerationY = 0.5f;
+                mInitialSpeedY = velocityX / 10;
+                mStartTimeY = SystemClock.elapsedRealtime();
             }
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     Log.e(TAG, "touch down");
-                    if (direction)
-                        mCurrentAcceleration = -Integer.MAX_VALUE;
-                    else mCurrentAcceleration = Integer.MAX_VALUE;
+                    if (directionY)
+                        mCurrentAccelerationY = - Integer.MAX_VALUE;
+                    else mCurrentAccelerationY = Integer.MAX_VALUE;
+
+                    if (directionX)
+                        mCurrentAccelerationX = - Integer.MAX_VALUE;
+                    else mCurrentAccelerationX = Integer.MAX_VALUE;
                 }
                 return super.onTouch(v, event);
+            }
+
+            @Override
+            public void onSwipeTop(float velocityY) {
+                super.onSwipeTop(velocityY);
+                directionX = false;
+                Log.e(TAG, "velocityY top -ve: " + velocityY );
+                mCurrentAccelerationX = 0.5f;
+                mInitialSpeedX = velocityY / 10;
+                mStartTimeX = SystemClock.elapsedRealtime();
+            }
+
+            @Override
+            public void onSwipeBottom(float velocityY) {
+                super.onSwipeBottom(velocityY);
+                directionX = true;
+                Log.e(TAG, "velocityY bottom +ve:" + velocityY );
+                mCurrentAccelerationX = - 0.5f;
+                mInitialSpeedX = velocityY / 10;
+                mStartTimeX = SystemClock.elapsedRealtime();
             }
         });
         mSurfaceHolder = mSurfaceView.getHolder();
@@ -94,7 +154,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         paint.setStrokeWidth(2);
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setStyle(Paint.Style.STROKE);
-        mStartTime = SystemClock.elapsedRealtime();
+        mStartTimeY = SystemClock.elapsedRealtime();
+        mStartTimeX = SystemClock.elapsedRealtime();
         tryDrawing(surfaceHolder);
     }
 
@@ -150,9 +211,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 
     void drawLine(Canvas c, int x1, int y1, int z1, int x2, int y2, int z2) {
-        float xrot = 0;
+        float xrot = mCurrentXRot;
         float yrot = mCurrentYRot;
-        //float zrot = 1;
+        float zrot = 0;
 
         // 3D transformations
 
@@ -162,11 +223,18 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         float newz1 = (float) (Math.cos(xrot) * z1 - Math.sin(xrot) * y1);
         float newz2 = (float) (Math.cos(xrot) * z2 - Math.sin(xrot) * y2);
 
+
         // rotation around Y-axis
         float newx1 = (float) (Math.sin(yrot) * newz1 + Math.cos(yrot) * x1);
         float newx2 = (float) (Math.sin(yrot) * newz2 + Math.cos(yrot) * x2);
         newz1 = (float) (Math.cos(yrot) * newz1 - Math.sin(yrot) * x1);
         newz2 = (float) (Math.cos(yrot) * newz2 - Math.sin(yrot) * x2);
+
+        // rotation around Z-axis
+        newy1 = (float) (Math.sin(zrot) * newx1 + Math.cos(zrot) * newy1);
+        newy2 = (float) (Math.sin(zrot) * newx2 + Math.cos(zrot) * newy2);
+        newx1 = (float) (Math.cos(zrot) * newx1 - Math.sin(zrot) * newy1);
+        newx2 = (float) (Math.cos(zrot) * newx2 - Math.sin(zrot) * newy2);
 
         // 3D-to-2D projection
         float startX = newx1 / (4 - newz1 / size);
@@ -176,5 +244,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         c.drawLine(startX, startY, stopX, stopY, mPaint);
     }
+
+
 
 }

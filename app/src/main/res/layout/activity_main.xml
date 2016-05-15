@@ -14,7 +14,13 @@
             android:layout_gravity="center_horizontal"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:text="Swipe Left/Right to rotate the cube. Touch to stop the cube. Cube decelerates with 0.5 degrees per milli seconds ^ 2"/>
+            android:text="Swipe Left/Right/Up/Down to rotate the cube. Touch to stop the cube. Cube decelerates with 0.5 degrees per milli seconds ^ 2"/>
+    <Button
+            android:id="@+id/btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Initial State"/>
     <SurfaceView android:id="@+id/surface_view"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"/>
